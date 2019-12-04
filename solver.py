@@ -45,15 +45,15 @@ def solve_captcha(image_file):
 
         # Compare the width and height of the contour to detect letters that
         # are conjoined into one chunk
-        if w / h > 1.25:
+        if w * h < 200:
+            # This contour is just noise
+            continue
+        elif w / h > 1.25:
             # This contour is too wide to be a single letter!
             # Split it in half into two letter regions!
             half_width = int(w / 2)
             letter_image_regions.append((x, y, half_width, h))
             letter_image_regions.append((x + half_width, y, half_width, h))
-        elif w * h < 200:
-            # This contour is just noise
-            continue
         else:
             # This is a normal letter by itself
             letter_image_regions.append((x, y, w, h))
@@ -78,8 +78,9 @@ def solve_captcha(image_file):
         x, y, w, h = letter_bounding_box
 
         # Extract the letter from the original image with a 2-pixel margin around the edge
-        letter_image = image[y - 2:y + h + 2, x - 2:x + w + 2]
-
+        #letter_image = image[y - 2:y + h + 2, x - 2:x + w + 2]
+        letter_image = image[y:y + h, x:x + w]
+        
         # Re-size the letter image to 20x20 pixels to match training data
         letter_image = resize_to_fit(letter_image, 20, 20)
 
@@ -102,4 +103,4 @@ def solve_captcha(image_file):
     captcha_text = "".join(predictions)
     #print("CAPTCHA text is: {}".format(captcha_text))
 
-    return captcha_text     
+    return captcha_text
