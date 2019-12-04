@@ -9,7 +9,7 @@ import pickle
 def solve_captcha(image_file):
     MODEL_FILENAME = "captcha_model.hdf5"
     MODEL_LABELS_FILENAME = "model_labels.dat"
-    CAPTCHA_IMAGE_FOLDER = "tmp"#"generated_captcha_images"
+    CAPTCHA_IMAGE_FOLDER = "tmp"
 
 
     # Load up the model labels (so we can translate model predictions to actual letters)
@@ -18,8 +18,6 @@ def solve_captcha(image_file):
 
     # Load the trained neural network
     model = load_model(MODEL_FILENAME)
-
-    #captcha_image_files = list(paths.list_images(CAPTCHA_IMAGE_FOLDER))
 
     # Load the image and convert it to grayscale
     image = cv2.imread(image_file)
@@ -53,6 +51,9 @@ def solve_captcha(image_file):
             half_width = int(w / 2)
             letter_image_regions.append((x, y, half_width, h))
             letter_image_regions.append((x + half_width, y, half_width, h))
+        elif w * h < 200:
+            # This contour is just noise
+            continue
         else:
             # This is a normal letter by itself
             letter_image_regions.append((x, y, w, h))
@@ -68,7 +69,7 @@ def solve_captcha(image_file):
     letter_image_regions = sorted(letter_image_regions, key=lambda x: x[0])
 
     # Create an output image and a list to hold our predicted letters
-    output = cv2.merge([image] * 3)
+    #output = cv2.merge([image] * 3)
     predictions = []
 
     # loop over the letters
